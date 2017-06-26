@@ -203,6 +203,33 @@ Function Get-ServiceStartMode
 
 <#
 .Synopsis
+   Returns display name of a service.
+#>
+Function Get-ServiceDisplayName
+{
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true)]
+        [ValidateNotNullOrEmpty()]
+        $ServiceName
+    )
+
+    Begin
+    {
+        $services = Get-WmiObject -Class win32_service
+    }
+    Process
+    {
+        return $services | Where-Object -FilterScript {$_.Name -eq $ServiceName} | 
+                           Select-Object -ExpandProperty DisplayName;
+    }
+}
+
+<#
+.Synopsis
    Returns specific details value of a service.
 #>
 Function Get-ServiceDetail
