@@ -17,6 +17,9 @@ Function Check-ServiceExists
     }
 
     Process{
+        if($services -eq $null) {
+            return $false;
+        }
         return $services.Contains($ServiceName);
     }
 }
@@ -46,6 +49,9 @@ Function Check-ServiceStatus
     }
 
     Process{
+        if($statusedSevices -eq $null) {
+            return $false;
+        }
         return $statusedSevices.Contains($ServiceName);
     }
 }
@@ -80,6 +86,9 @@ Function Check-ServiceRunUnder
     }
     Process
     {
+        if($servicesUnderAccount -eq $null) {
+            return $false;
+        }
         return $servicesUnderAccount.Contains($ServiceName);
     }
 }
@@ -96,6 +105,7 @@ Function Get-ServiceDescription
     (
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true)]
+        [ValidateNotNullOrEmpty()]
         $ServiceName
     )
 
@@ -122,6 +132,7 @@ Function Get-ServiceState
     (
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true)]
+        [ValidateNotNullOrEmpty()]
         $ServiceName
     )
 
@@ -148,6 +159,7 @@ Function Get-ServiceStartName
     (
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true)]
+        [ValidateNotNullOrEmpty()]
         $ServiceName
     )
 
@@ -164,6 +176,33 @@ Function Get-ServiceStartName
 
 <#
 .Synopsis
+   Returns start mode of a service.
+#>
+Function Get-ServiceStartMode
+{
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true)]
+        [ValidateNotNullOrEmpty()]
+        $ServiceName
+    )
+
+    Begin
+    {
+        $services = Get-WmiObject -Class win32_service
+    }
+    Process
+    {
+        return $services | Where-Object -FilterScript {$_.Name -eq $ServiceName} | 
+                           Select-Object -ExpandProperty StartMode;
+    }
+}
+
+<#
+.Synopsis
    Returns specific details value of a service.
 #>
 Function Get-ServiceDetail
@@ -174,8 +213,10 @@ Function Get-ServiceDetail
     (
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true)]
+        [ValidateNotNullOrEmpty()]
         $ServiceName,
         [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         $DetailName
     )
 
